@@ -60,3 +60,7 @@ from Courses
 group by class
 having count(student)>=5
 
+-- bai tap 3
+select
+ceiling(avg(salary)-avg(replace(salary,0,'')))
+from EMPLOYEES
