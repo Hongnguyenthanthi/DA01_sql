@@ -5,3 +5,4 @@ FROM job_listings
 group by company_id, title, description
 having count(*)>=2) as a
 
+
