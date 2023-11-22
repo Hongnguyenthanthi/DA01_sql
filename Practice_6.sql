@@ -27,6 +27,13 @@ select category, product, total_spend
 from twt_electronics
 
 -- bai tap 3
+  select count(policy_holder_id) as member_count 
+from (SELECT policy_holder_id, count(*)
+from callers
+where call_category is not null
+group by policy_holder_id
+having count(*)>=3) as a  
+
 
 -- bai tap 4
 SELECT a.page_id
@@ -73,7 +80,10 @@ inner join year_product as b
 on a.product_id=b.product_id and a.year=b.first_year
 
 -- bai tap 8
-
+select distinct customer_id
+from customer
+group by customer_id
+having count(distinct product_key)= (select count(*) from product)
 
 -- bai tap 10 
 select (count(distinct company_id)) as duplicate_companies from 
@@ -102,28 +112,17 @@ on a.movie_id = b.movie_id
 order by a.avg_rating desc, b.title
 limit 1) as f 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- bai tap 12
+# Write your MySQL query statement below
+select accept as id, count(*) as num from 
+(select requester_id as accept, accepter_id as request
+from requestaccepted
+union all
+select accepter_id as accept, requester_id as request
+from requestaccepted) as a
+group by accept 
+order by count(*) desc 
+limit 1 
 
 
 
