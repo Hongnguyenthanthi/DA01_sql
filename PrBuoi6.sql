@@ -19,3 +19,4 @@ group by customer_id
 order by avg(return_date-rental_date) desc 
 
 -- TO_CHAR
+
