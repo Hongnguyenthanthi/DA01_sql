@@ -47,6 +47,16 @@ from twt_new
 where rank1=1
 order by transaction_date
 
+-- bai tap 5
+  SELECT    
+  user_id,    
+  tweet_date,
+  round(AVG(tweet_count) OVER (
+    PARTITION BY user_id     
+    ORDER BY tweet_date
+    rows between 2 preceding and current row),2) AS rolling_avg_3d
+FROM tweets 
+
 -- bai tap 6
 -- bảng cte : tạo lag của transaction_timestamp rồi trừ với transaction_timestamp = minute 
 -- select, đếm với điều kiện minute < 10 
@@ -61,6 +71,9 @@ from twt_new
 where minute<10
 
 -- bai tap 7 
+-- tạo bảng cte new_table để group by category, product và sum(spend)
+-- tạo bảng cte new_table_1 để tạo rank1 
+-- select từ new_table_1 điều kiện rank=1 or rank=2
 with new_table as 
 (select category, product, sum(spend) as total_spend
 from product_spend
@@ -73,5 +86,28 @@ from new_table)
 select category, product, total_spend
 from new_table_1 
 where rank1=2 or rank1=1
+
+-- bai tap 8 
+-- tạo bảng cte new_table để join 3 bảng lại vs nhau, đếm số lần được rank của mỗi artist_name, điều kiện. rank<=10
+-- tạo bảng cte new_table_1 để xếp hạng rank của artist_name bằng số lần count ở trên desc 
+-- select từ bảng new_table_1 khi artist_rank<=5 
+with new_table as 
+(SELECT a.artist_name,
+count(artist_name) as ranking
+FROM artists as a  
+join songs as b 
+on a.artist_id=b.artist_id
+join global_song_rank as c 
+on b.song_id=c.song_id
+where c.rank<=10
+group by artist_name),
+new_table_1 as
+(select artist_name,
+dense_rank() over(order by ranking desc) as artist_rank
+from new_table)
+select artist_name, artist_rank
+from new_table_1
+where artist_rank<=5
+
 
 
