@@ -12,7 +12,23 @@ round(sum(case when order_date=customer_pref_delivery_date then 1 else 0 end )/ 
 from table1 
 where rank1=1
 
-
+-- bai tap 2
+  # Write your MySQL query statement below
+select tiv_2016 
+from insurance 
+where tiv_2015 in 
+(select tiv_2015,count( tiv_2015) as count_2015
+from insurance
+group by tiv_2015
+having count(tiv_2015)!=1) and lat in
+(select lat, lon, count(lat) as count_lat, count(lon) as count_lon
+from insurance
+group by lat, lon
+having count(lat)=1 and count(lon)=1)
+ and lon in (select lat, lon, count(lat) as count_lat, count(lon) as count_lon
+from insurance
+group by lat, lon
+having count(lat)=1 and count(lon)=1)
   
 -- bai tap 6 
 -- join 2 bảng employee và department lại với nhau
