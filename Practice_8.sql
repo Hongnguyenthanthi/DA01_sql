@@ -11,19 +11,8 @@ select
 round(sum(case when order_date=customer_pref_delivery_date then 1 else 0 end )/ count(*)*100,2) as immediate_percentage
 from table1 
 where rank1=1
-  
--- bai tap 2 
-select sum(case when a.diff=1 then 1 else 0 end)/count(b.player_id)
-from table1 as a
-join activity as b 
-on a.player_id=b.player_id
 
-select round(sum(case when diff=1 then 1 else 0 end )/count(distinct player_id),2) as fraction 
-from table1
 
-select tiv_2015,count( tiv_2015)
-from insurance
-group by tiv_2015
   
 -- bai tap 6 
 -- join 2 bảng employee và department lại với nhau
@@ -54,6 +43,26 @@ from newtable
 where total_weight<=1000)
 select person_name from newtable1
 where turn_desc=1
+
+-- bai tap 8
+with newtable as (select product_id, new_price as price, change_date,
+rank() over(partition by product_id order by change_date desc) as rank1
+from products
+where change_date<='2019-08-16'),
+newtable1 as 
+(select product_id, new_price, change_date, 10 as price,
+rank() over(partition by product_id order by change_date desc) as rank1
+from products
+where change_date>='2019-08-16' and product_id not in (select product_id from newtable)),
+newtable2 as (select a.product_id, a.price, a.rank1
+from newtable as a
+union all 
+select b.product_id, b.price, b.rank1
+from newtable1 as b)
+select c.product_id as product_id, c.price as price
+from newtable2 as c
+where c.rank1=1
+
 
 
 
