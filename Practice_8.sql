@@ -20,3 +20,9 @@ on a.player_id=b.player_id
 
 select round(sum(case when diff=1 then 1 else 0 end )/count(distinct player_id),2) as fraction 
 from table1
+
+select tiv_2015,count( tiv_2015)
+from insurance
+group by tiv_2015
+
+
