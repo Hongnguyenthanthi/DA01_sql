@@ -11,3 +11,12 @@ select
 round(sum(case when order_date=customer_pref_delivery_date then 1 else 0 end )/ count(*)*100,2) as immediate_percentage
 from table1 
 where rank1=1
+  
+-- bai tap 2 
+select sum(case when a.diff=1 then 1 else 0 end)/count(b.player_id)
+from table1 as a
+join activity as b 
+on a.player_id=b.player_id
+
+select round(sum(case when diff=1 then 1 else 0 end )/count(distinct player_id),2) as fraction 
+from table1
