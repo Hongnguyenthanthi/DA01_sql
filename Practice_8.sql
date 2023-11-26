@@ -24,5 +24,37 @@ from table1
 select tiv_2015,count( tiv_2015)
 from insurance
 group by tiv_2015
+  
+-- bai tap 6 
+-- join 2 bảng employee và department lại với nhau
+-- tạo newtable1 cte để rank salary gộp department gần nhau 
+-- select từ newtable1 điều kiện rank<=3
+with newtable as (select b.name as Department, a.name as Employee, a.salary as Salary 
+from employee as a
+join department as b 
+on a.departmentId=b.id),
+newtable1 as (select Department, Employee, Salary,
+dense_rank() over(partition by department order by salary desc) as rank1
+from newtable)
+select Department, Employee, Salary
+from newtable1
+where rank1<=3
+
+-- bai tap 7
+-- cte newtable để rank turn, và cộng dồn weight bằng over(order by)
+-- cte newtable1 để rank turn desc, người cuối cùng lên đầu, điều kiện total weight<=1000
+-- select từ newtable1 để chọn turn_desc=1
+with newtable as (select *, 
+rank() over(order by turn),
+sum(weight) over(order by turn) as total_weight
+from queue),
+newtable1 as (select *,
+rank() over(order by turn desc) as turn_desc
+from newtable
+where total_weight<=1000)
+select person_name from newtable1
+where turn_desc=1
+
+
 
 
