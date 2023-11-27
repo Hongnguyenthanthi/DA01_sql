@@ -53,22 +53,22 @@ where rank1>6
 
   
 -- bai tap 5
-  # Write your MySQL query statement below
-select tiv_2016 
-from insurance 
-where tiv_2015 in 
-(select tiv_2015,count( tiv_2015) as count_2015
+-- bảng cte newtable để select tiv_2015 có same value bằng cách đếm count(*) khác 1
+-- bảng cte newtable1 để select lat, lon không có same value bằng cách đếm count(*) bằng 1 
+-- select tiv_2016 từ bảng insurance điều kiện lat, lon, và tiv_2015 có trong newtable1 và newtable 
+with newtable as (select tiv_2015, count(*)
 from insurance
 group by tiv_2015
-having count(tiv_2015)!=1) and lat in
-(select lat, lon, count(lat) as count_lat, count(lon) as count_lon
+having count(*)<>1),
+newtable1 as (select lat, lon, count(*)
 from insurance
 group by lat, lon
-having count(lat)=1 and count(lon)=1)
- and lon in (select lat, lon, count(lat) as count_lat, count(lon) as count_lon
-from insurance
-group by lat, lon
-having count(lat)=1 and count(lon)=1)
+having count(*)=1)
+select round(sum(tiv_2016),2) as tiv_2016
+from insurance 
+where lat in (select lat from newtable1) and lon in (select lon from newtable1)
+and tiv_2015 in (select tiv_2015 from newtable)
+  
   
 -- bai tap 6 
 -- join 2 bảng employee và department lại với nhau
