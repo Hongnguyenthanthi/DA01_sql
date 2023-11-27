@@ -12,6 +12,7 @@ round(sum(case when order_date=customer_pref_delivery_date then 1 else 0 end )/ 
 from table1 
 where rank1=1
 
+  
 -- bai tap 2 
 – bảng cte newtable để tìm first_login bằng min(event_date) gộp player_id lại
 – tìm datediff giữa event_date và first_login
@@ -24,6 +25,7 @@ select round(sum(case when date_diff=1 then 1 else 0
 end)/count(distinct player_id),2) as fraction
 from newtable
 
+  
 -- bai tap 3
 -- dùng case when nếu id chia 2 khác 0 thì id+1, nếu id chia 2 bằn 0 thì id -1, nếu id chia 2 khác 0 và id bằng tổng số seat thì vẫn là id 
 select
@@ -33,6 +35,7 @@ when id % 2 <>0 then id+1 end) as id, student
 from seat
 order by id
 
+  
 -- bai tap 4
 -- bảng cte newtable để group by visited_on và tính sum(amount)
 -- bảng cte newtable1 để tính accumulated sum(amount) và accumulated avg(amount) từ '2019-01-01', rank theo visited_on 
@@ -49,7 +52,6 @@ from newtable)
 select visited_on, amount, average_amount 
 from newtable1 
 where rank1>6
-
 
   
 -- bai tap 5
@@ -68,7 +70,7 @@ select round(sum(tiv_2016),2) as tiv_2016
 from insurance 
 where lat in (select lat from newtable1) and lon in (select lon from newtable1)
 and tiv_2015 in (select tiv_2015 from newtable)
-  
+
   
 -- bai tap 6 
 -- join 2 bảng employee và department lại với nhau
@@ -85,6 +87,7 @@ select Department, Employee, Salary
 from newtable1
 where rank1<=3
 
+  
 -- bai tap 7
 -- cte newtable để rank turn, và cộng dồn weight bằng over(order by)
 -- cte newtable1 để rank turn desc, người cuối cùng lên đầu, điều kiện total weight<=1000
@@ -100,6 +103,7 @@ where total_weight<=1000)
 select person_name from newtable1
 where turn_desc=1
 
+  
 -- bai tap 8
 -- bảng cte newtable để rank change_date desc gộp product_id, điều kiện change_date<='2019-08-16'
 -- bảng cte newtable1 để rank change_date desc gộp product_id, điều kiện change_date>='2019-08-16' và product_id not in bảng cte newtable, thêm cột 10 as price 
@@ -122,8 +126,4 @@ from newtable1 as b)
 select c.product_id as product_id, c.price as price
 from newtable2 as c
 where c.rank1=1
-
-
-
-
 
