@@ -23,7 +23,16 @@ from activity)
 select round(sum(case when date_diff=1 then 1 else 0
 end)/count(distinct player_id),2) as fraction
 from newtable
-  
+
+-- bai tap 3
+(select
+(case when id % 2<>0 and (select count(*) from seat) =id then id 
+when id % 2 =0 then id-1 
+when id % 2 <>0 then id+1 end) as id, student
+from seat
+order by id)
+
+-- 
 -- bai tap 5
   # Write your MySQL query statement below
 select tiv_2016 
