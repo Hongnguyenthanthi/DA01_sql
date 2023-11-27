@@ -34,6 +34,9 @@ from seat
 order by id
 
 -- bai tap 4
+-- bảng cte newtable để group by visited_on và tính sum(amount)
+-- bảng cte newtable1 để tính accumulated sum(amount) và accumulated avg(amount) từ '2019-01-01', rank theo visited_on 
+-- select từ newtable1 điều kiện rank>6 
 with newtable as (select visited_on,
 sum(amount) as amount
 from customer
