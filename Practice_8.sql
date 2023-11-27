@@ -12,7 +12,19 @@ round(sum(case when order_date=customer_pref_delivery_date then 1 else 0 end )/ 
 from table1 
 where rank1=1
 
--- bai tap 2
+-- bai tap 2 
+– bảng cte newtable để tìm first_login bằng min(event_date) gộp player_id lại
+– tìm datediff giữa event_date và first_login
+– select từ bảng newtable với datediff=1  
+with newtable as (select player_id, event_date,
+min(event_date) over(partition by player_id) as min_event_date,
+datediff(event_date,min(event_date) over(partition by player_id)) as date_diff
+from activity)
+select round(sum(case when date_diff=1 then 1 else 0
+end)/count(distinct player_id),2) as fraction
+from newtable
+  
+-- bai tap 5
   # Write your MySQL query statement below
 select tiv_2016 
 from insurance 
@@ -61,6 +73,10 @@ select person_name from newtable1
 where turn_desc=1
 
 -- bai tap 8
+-- bảng cte newtable để rank change_date desc gộp product_id, điều kiện change_date<='2019-08-16'
+-- bảng cte newtable1 để rank change_date desc gộp product_id, điều kiện change_date>='2019-08-16' và product_id not in bảng cte newtable, thêm cột 10 as price 
+-- bảng cte newtable2 để union all 2 bảng newtable và newtable1 
+-- select từ bảng newtable2 với điều kiện rank1=1 
 with newtable as (select product_id, new_price as price, change_date,
 rank() over(partition by product_id order by change_date desc) as rank1
 from products
