@@ -33,7 +33,22 @@ when id % 2 <>0 then id+1 end) as id, student
 from seat
 order by id
 
--- 
+-- bai tap 4
+with newtable as (select visited_on,
+sum(amount) as amount
+from customer
+group by visited_on),
+newtable1 as (select visited_on,
+sum(amount) over(order by visited_on rows between 6 preceding and current row) as amount,
+round(avg(amount) over(order by visited_on rows between 6 preceding and current row),2) as average_amount,
+row_number() over(order by visited_on) as rank1
+from newtable)
+select visited_on, amount, average_amount 
+from newtable1 
+where rank1>6
+
+
+  
 -- bai tap 5
   # Write your MySQL query statement below
 select tiv_2016 
