@@ -25,12 +25,13 @@ end)/count(distinct player_id),2) as fraction
 from newtable
 
 -- bai tap 3
-(select
+-- dùng case when nếu id chia 2 khác 0 thì id+1, nếu id chia 2 bằn 0 thì id -1, nếu id chia 2 khác 0 và id bằng tổng số seat thì vẫn là id 
+select
 (case when id % 2<>0 and (select count(*) from seat) =id then id 
 when id % 2 =0 then id-1 
 when id % 2 <>0 then id+1 end) as id, student
 from seat
-order by id)
+order by id
 
 -- 
 -- bai tap 5
