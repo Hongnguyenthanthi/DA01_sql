@@ -61,10 +61,11 @@ WHEN MONTH_ID BETWEEN 7 AND 9 THEN 3
 WHEN MONTH_ID BETWEEN 10 AND 12 THEN 4 END 
 
 -- 5. Hãy tìm outlier (nếu có) cho cột QUANTITYORDERED (2 cách) 
-with twt_min_max_value as (select Q1-1.5*IQR as min_value, 
-Q3+1.5*IQR as max_value
-from (
-SELECT 
+-- cách 1
+with twt_min_max_value as 
+(select Q1-1.5*IQR as min_value, 
+Q3+1.5*IQR as max_value from 
+(SELECT 
 PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY QUANTITYORDERED) as Q1,
 PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY QUANTITYORDERED) as Q3,
 PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY QUANTITYORDERED)
@@ -74,21 +75,22 @@ select * from public.sales_dataset_rfm_prj
 where quantityordered < (select min_value from twt_min_max_value)
 or quantityordered > (select max_value from twt_min_max_value)
 
+-- cách 2	
 with cte as 
-(select quantityordered, (select avg(quantityordered) as avg
-			from public.sales_dataset_rfm_prj),			 
-(select stddev(quantityordered) as stddev
-from public.sales_dataset_rfm_prj) from public.sales_dataset_rfm_prj)
+(select quantityordered, 
+(select avg(quantityordered) as avg from public.sales_dataset_rfm_prj),			 
+(select stddev(quantityordered) as stddev from public.sales_dataset_rfm_prj) 
+from public.sales_dataset_rfm_prj)
 select quantityordered, (quantityordered-avg)/stddev as z_score
 from cte 
 where abs((quantityordered-avg)/stddev)>3
 
--- cách xử lý cho bản ghi đó	
+-- cách xử lý cho bản ghi đó
+-- cách 1
 delete from public.sales_dataset_rfm_prj
 where quantityordered in (with twt_min_max_value as (select Q1-1.5*IQR as min_value, 
-Q3+1.5*IQR as max_value
-from (
-SELECT 
+Q3+1.5*IQR as max_value from 
+(SELECT 
 PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY QUANTITYORDERED) as Q1,
 PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY QUANTITYORDERED) as Q3,
 PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY QUANTITYORDERED)
@@ -99,7 +101,8 @@ where quantityordered < (select min_value from twt_min_max_value)
 or quantityordered > (select max_value from twt_min_max_value))
 	
 delete from public.sales_dataset_rfm_prj
-where quantityordered in (with cte as 
+where quantityordered in 
+(with cte as 
 (select quantityordered, (select avg(quantityordered) as avg
 			from public.sales_dataset_rfm_prj),			 
 (select stddev(quantityordered) as stddev
@@ -107,3 +110,7 @@ from public.sales_dataset_rfm_prj) from public.sales_dataset_rfm_prj)
 select quantityordered
 from cte 
 where abs((quantityordered-avg)/stddev)>3)
+	
+-- 6. Sau khi làm sạch dữ liệu, hãy lưu vào bảng mới tên là SALES_DATASET_RFM_PRJ_CLEAN
+create table sales_dataset_rfm_prj_clean as 
+(select * from sales_dataset_rfm_prj)
