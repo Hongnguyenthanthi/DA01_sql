@@ -60,7 +60,7 @@ WHEN MONTH_ID BETWEEN 4 AND 6 THEN 2
 WHEN MONTH_ID BETWEEN 7 AND 9 THEN 3
 WHEN MONTH_ID BETWEEN 10 AND 12 THEN 4 END 
 
--- 5. Hãy tìm outlier (nếu có) cho cột QUANTITYORDERED và hãy chọn cách xử lý cho bản ghi đó (2 cách) 
+-- 5. Hãy tìm outlier (nếu có) cho cột QUANTITYORDERED (2 cách) 
 with twt_min_max_value as (select Q1-1.5*IQR as min_value, 
 Q3+1.5*IQR as max_value
 from (
@@ -83,12 +83,27 @@ select quantityordered, (quantityordered-avg)/stddev as z_score
 from cte 
 where abs((quantityordered-avg)/stddev)>3
 
+-- cách xử lý cho bản ghi đó	
+delete from public.sales_dataset_rfm_prj
+where quantityordered in (with twt_min_max_value as (select Q1-1.5*IQR as min_value, 
+Q3+1.5*IQR as max_value
+from (
+SELECT 
+PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY QUANTITYORDERED) as Q1,
+PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY QUANTITYORDERED) as Q3,
+PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY QUANTITYORDERED)
+- PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY QUANTITYORDERED) as IQR
+from public.sales_dataset_rfm_prj) as a)
+select quantityordered from public.sales_dataset_rfm_prj
+where quantityordered < (select min_value from twt_min_max_value)
+or quantityordered > (select max_value from twt_min_max_value))
+	
 delete from public.sales_dataset_rfm_prj
 where quantityordered in (with cte as 
 (select quantityordered, (select avg(quantityordered) as avg
 			from public.sales_dataset_rfm_prj),			 
 (select stddev(quantityordered) as stddev
 from public.sales_dataset_rfm_prj) from public.sales_dataset_rfm_prj)
-select quantityordered, (quantityordered-avg)/stddev as z_score
+select quantityordered
 from cte 
 where abs((quantityordered-avg)/stddev)>3)
