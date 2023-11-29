@@ -18,7 +18,13 @@ ALTER TABLE sales_dataset_rfm_prj
 alter column orderdate type date 
 
 ALTER TABLE sales_dataset_rfm_prj
-alter column msrp type integer using(trim(msrp)::int)	
+alter column msrp type integer using(trim(msrp)::int)
+
+-- 2. Check NULL/BLANK (‘’)  ở các trường: ORDERNUMBER, QUANTITYORDERED, PRICEEACH, ORDERLINENUMBER, SALES, ORDERDATE.
+select * from public.sales_dataset_rfm_prj
+where ORDERNUMBER is null or QUANTITYORDERED is null
+or PRICEEACH is null or  ORDERLINENUMBER is null or
+SALES is null or ORDERDATE is null
   
 -- 3. Thêm cột CONTACTLASTNAME, CONTACTFIRSTNAME được tách ra từ CONTACTFULLNAME 
 alter table sales_dataset_rfm_prj
@@ -111,3 +117,7 @@ where abs((quantityordered-avg)/stddev)>3)
 -- 6. Sau khi làm sạch dữ liệu, hãy lưu vào bảng mới tên là SALES_DATASET_RFM_PRJ_CLEAN
 create table sales_dataset_rfm_prj_clean as 
 (select * from sales_dataset_rfm_prj)
+
+
+
+
