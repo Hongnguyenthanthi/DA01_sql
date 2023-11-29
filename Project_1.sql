@@ -15,14 +15,14 @@ ALTER TABLE sales_dataset_rfm_prj
 alter column sales type numeric using (trim(sales)::numeric); 
 
 ALTER TABLE sales_dataset_rfm_prj
-alter column orderdate type timestamp using (trim(orderdate)::timestamp)
+alter column orderdate type date 
+
+ALTER TABLE sales_dataset_rfm_prj
+alter column msrp type integer using(trim(msrp)::int)	
   
 -- 3. Thêm cột CONTACTLASTNAME, CONTACTFIRSTNAME được tách ra từ CONTACTFULLNAME 
 alter table sales_dataset_rfm_prj
-add column CONTACTLASTNAME varchar(50)
-
-alter table sales_dataset_rfm_prj
-add column CONTACTFIRSTNAME varchar(50)
+add column CONTACTLASTNAME varchar(50), add column CONTACTFIRSTNAME varchar(50)
 
 update public.sales_dataset_rfm_prj
 set contactfirstname = substring(contactfullname from 1 for position('-'in contactfullname)-1)
@@ -40,19 +40,16 @@ set contactfirstname = upper(left(contactfirstname,1)) || lower(right(contactfir
 
  -- 4. Thêm cột QTR_ID, MONTH_ID, YEAR_ID lần lượt là Qúy, tháng, năm được lấy ra từ ORDERDATE 
 alter table sales_dataset_rfm_prj
-add column QTR_ID INTEGER
-
-alter table sales_dataset_rfm_prj
-add column MONTH_ID INTEGER
-
-alter table sales_dataset_rfm_prj
-add column YEAR_ID INTEGER
+add column QTR_ID INTEGER, add column MONTH_ID INTEGER, add column YEAR_ID INTEGER
 
 update public.sales_dataset_rfm_prj
 SET MONTH_ID = EXTRACT(MONTH FROM ORDERDATE)
 
 update public.sales_dataset_rfm_prj
 SET YEAR_ID = EXTRACT(YEAR FROM ORDERDATE)
+
+update public.sales_dataset_rfm_prj
+SET QTR_ID = EXTRACT(QUARTER FROM ORDERDATE)
 
 update public.sales_dataset_rfm_prj
 SET QTR_ID = CASE WHEN MONTH_ID BETWEEN 1 AND 3 THEN 1 
