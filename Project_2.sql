@@ -23,8 +23,8 @@ from bigquery-public-data.thelook_ecommerce.users),
 tag_table as (select *, case when age_rank=1 then 'youngest' end as tag from dense_rank_age where age_rank=1
 union all 
 select *, case when age_rank_desc=1 then 'oldest' end as tag from dense_rank_age_desc where age_rank_desc=1)
-select tag, age, count(tag) as number_of_people
+select tag, age, gender, count(tag) as number_of_people
 from tag_table
-group by tag, age
+group by tag, age, gender 
 -> nhận xét: trẻ nhất là 12 tuổi, số lượng là 1682 người, 831 nữ, 851 nam; lớn nhất là 70 tuổi, số lượng là 1717 người, 843 nữ, 874 nam. 
 
