@@ -13,8 +13,9 @@ where (format_date('%Y-%m',a.delivered_at) between '2019-01' and '2022-04')
 group by 1
 order by 1
 -> nhận xét: giá trị đơn hàng trung bình và tổng số người dùng khác nhau tăng theo thời gian từ t1/2019 đến t4/2022
-
-with dense_rank_age as (select *,
+  
+-- 3. Nhóm khách hàng theo độ tuổi
+create temp table customer_age as (with dense_rank_age as (select *,
 dense_rank() over(partition by gender order by age) as age_rank
 from bigquery-public-data.thelook_ecommerce.users),
 dense_rank_age_desc as (select *,
@@ -23,8 +24,20 @@ from bigquery-public-data.thelook_ecommerce.users),
 tag_table as (select *, case when age_rank=1 then 'youngest' end as tag from dense_rank_age where age_rank=1
 union all 
 select *, case when age_rank_desc=1 then 'oldest' end as tag from dense_rank_age_desc where age_rank_desc=1)
-select tag, age, gender, count(tag) as number_of_people
+(select tag, age, gender, count(tag) as number_of_people
 from tag_table
-group by tag, age, gender 
+group by tag, age, gender))
+ 
+  select * from customer_age 
 -> nhận xét: trẻ nhất là 12 tuổi, số lượng là 1682 người, 831 nữ, 851 nam; lớn nhất là 70 tuổi, số lượng là 1717 người, 843 nữ, 874 nam. 
+
+ -- 4. Top 5 sản phẩm mỗi tháng 
+with rank_per_month_table as (select format_date('%Y-%m',sold_at) as year_month, product_id, product_name, product_retail_price as sales, cost, product_retail_price - cost as profit, 
+dense_rank() over(partition by format_date('%Y-%m',sold_at) order by product_retail_price - cost) as rank_per_month
+from bigquery-public-data.thelook_ecommerce.inventory_items
+where sold_at is not null)
+select * from rank_per_month_table 
+where rank_per_month <=5
+order by year_month
+  
 
