@@ -39,5 +39,15 @@ where sold_at is not null)
 select * from rank_per_month_table 
 where rank_per_month <=5
 order by year_month
+
+-- 5. 5.Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
+with new_table as (select cast(format_date('%Y-%m-%d',sold_at) as date) as year_month_day,product_category,
+sum(product_retail_price) as revenue
+from bigquery-public-data.thelook_ecommerce.inventory_items
+group by 1,2)
+select *
+from new_table 
+where year_month_day between '2022-01-15' and '2022-04-15'
+order by year_month_day, product_category 
   
 
