@@ -1,10 +1,12 @@
+-- 1. Số lượng đơn hàng và số lượng khách hàng mỗi tháng
 SELECT  format_date('%Y-%m',delivered_at) as year_month, count(order_id) as total_order, count(user_id) as total_user
 FROM bigquery-public-data.thelook_ecommerce.orders 
 where (format_date('%Y-%m',delivered_at) between '2019-01' and '2022-04') and status ='Complete'
 group by 1
 order by 1
 -> nhận xét: số lượng đơn hàng và số lượng người dùng tăng theo thời gian từ t1/2019 đến t4/2022
-
+  
+-- 2. Giá trị đơn hàng trung bình (AOV) và số lượng khách hàng mỗi tháng
 SELECT  format_date('%Y-%m',a.delivered_at) as year_month, sum(b.sale_price)/count(a.order_id) as average_order_value, count(distinct a.user_id) as distinct_users
 FROM bigquery-public-data.thelook_ecommerce.orders as a 
 join bigquery-public-data.thelook_ecommerce.order_items as b 
@@ -40,7 +42,7 @@ select * from rank_per_month_table
 where rank_per_month <=5
 order by year_month
 
--- 5. 5.Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
+-- 5. Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
 with new_table as (select cast(format_date('%Y-%m-%d',sold_at) as date) as year_month_day,product_category,
 sum(product_retail_price) as revenue
 from bigquery-public-data.thelook_ecommerce.inventory_items
