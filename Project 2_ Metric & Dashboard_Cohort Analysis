@@ -1,5 +1,0 @@
-SELECT format_date('%Y-%m', a.created_at) as year_month, extract(year from a.created_at) as year, b.category as product_category
-FROM bigquery-public-data.thelook_ecommerce.orders as a 
-join bigquery-public-data.thelook_ecommerce.products as b
-
-  
