@@ -8,7 +8,7 @@ order by 1
   
 -- 2. Giá trị đơn hàng trung bình (AOV) và số lượng khách hàng mỗi tháng
 SELECT  format_date('%Y-%m',a.delivered_at) as year_month, 
-round(sum(b.sale_price)/count(a.order_id),2) as average_order_value, 
+round(avg(b.sale_price),2) as average_order_value, 
 count(distinct a.user_id) as distinct_users
 FROM bigquery-public-data.thelook_ecommerce.orders as a 
 join bigquery-public-data.thelook_ecommerce.order_items as b 
