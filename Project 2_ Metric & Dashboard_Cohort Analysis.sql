@@ -1,19 +1,23 @@
-SELECT format_date('%Y-%m', a.created_at) as year_month, 
+with new_table as (SELECT c.category as product_category, format_date('%Y-%m', a.created_at) as year_month, 
   extract(year from a.created_at) as year, 
-  b.category as product_category, 
-  sum(c.sale_price) as TPV, 
-  count(c.order_id) as TPO,
-  lag(format_date('%Y-%m', a.created_at)) over(order by format_date('%Y-%m', a.created_at)) as previous_month,
-  lag(sum(c.sale_price)) over(order by sum(c.sale_price) as previous_TPV,
-  lag(count(c.order_id)) over(order by count(c.order_id)) as previous_TPO
-  sum(b.cost) as total_cost,
-  sum(c.sale_price-b.cost) as total_profit,
-  sum(c.sale_price-b.cost)/ sum(b.cost) as profit_to_cost_ratio 
+  sum(b.sale_price) as TPV, 
+  count(b.order_id) as TPO,
+  sum(c.cost) as total_cost,
+  sum(b.sale_price)-sum(c.cost) as total_profit
 FROM bigquery-public-data.thelook_ecommerce.orders as a 
-join bigquery-public-data.thelook_ecommerce.products as b
-on a.order_id=b.id
-join bigquery-public-data.thelook_ecommerce.order_items as c
-on a.order_id=c.order_id
+join bigquery-public-data.thelook_ecommerce.order_items as b
+on a.order_id=b.order_id
+join bigquery-public-data.thelook_ecommerce.products as c 
+on c.id=b.order_id
+group by 1,2,3
+order by 2) 
+select *, 
+lag(TPV) over(partition by product_category order by year_month) as previous_TPV,
+(TPV-lag(TPV) over(partition by product_category order by year_month))/lag(TPV) over(partition by product_category order by year_month) as revenue_growth,
+lag(TPO) over(partition by product_category order by year_month) as previous_TPO,
+(TPO-lag(TPO) over(partition by product_category order by year_month))/lag(TPO) over(partition by product_category order by year_month) as order_growth
+from new_table
+
 
 
   
