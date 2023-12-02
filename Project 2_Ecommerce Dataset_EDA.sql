@@ -7,13 +7,13 @@ order by 1
 -> nhận xét: số lượng đơn hàng và số lượng người dùng tăng theo thời gian từ t1/2019 đến t4/2022
   
 -- 2. Giá trị đơn hàng trung bình (AOV) và số lượng khách hàng mỗi tháng
-SELECT  format_date('%Y-%m',a.delivered_at) as year_month, 
+SELECT  format_date('%Y-%m',a.created_at) as year_month, 
 round(avg(b.sale_price),2) as average_order_value, 
 count(distinct a.user_id) as distinct_users
 FROM bigquery-public-data.thelook_ecommerce.orders as a 
 join bigquery-public-data.thelook_ecommerce.order_items as b 
 on a.order_id=b.order_id
-where (format_date('%Y-%m',a.delivered_at) between '2019-01' and '2022-04') 
+where (format_date('%Y-%m',a.created_at) between '2019-01' and '2022-04') 
 group by 1
 order by 1
 -> nhận xét: giá trị đơn hàng trung bình và tổng số người dùng khác nhau tăng theo thời gian từ t1/2019 đến t4/2022
@@ -48,13 +48,12 @@ select * from customer_age
  -- 4. Top 5 sản phẩm mỗi tháng 
 
   with rank_per_month_table as 
-(select format_date('%Y-%m',a.delivered_at) as year_month, 
+(select format_date('%Y-%m',a.created_at) as year_month, 
 b.id as product_id, b.name as product_name, round((a.sale_price-b.cost),2) as profit, 
-dense_rank() over(partition by format_date('%Y-%m',a.delivered_at) order by (a.sale_price-b.cost)) as rank_per_month
+dense_rank() over(partition by format_date('%Y-%m',a.created_at) order by (a.sale_price-b.cost)) as rank_per_month
 from bigquery-public-data.thelook_ecommerce.order_items as a
 join bigquery-public-data.thelook_ecommerce.products as b
-on a.product_id=b.id
-where a.status = 'Complete')
+on a.product_id=b.id)
 select * from rank_per_month_table 
 where rank_per_month <=5
 order by year_month
@@ -62,15 +61,13 @@ order by year_month
 -- 5. Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
 
 with new_table as 
-(select cast(format_date('%Y-%m-%d',a.delivered_at) as date) as year_month_day, 
+(select date(a.created_at) as year_month_day, 
 b.category as product_category, round(sum(a.sale_price),2) as revenue
 from bigquery-public-data.thelook_ecommerce.order_items as a
 join bigquery-public-data.thelook_ecommerce.products as b
 on a.product_id=b.id
-where a.status = 'Complete'
 group by 1, 2)
 select * from new_table 
-where year_month_day between '2022-01-15' and '2022-04-15'
+where year_month_day>=date_sub(date'2022-04-15', interval 3 month) and year_month_day<=date'2022-04-15'
 order by year_month_day, product_category
-  
 
