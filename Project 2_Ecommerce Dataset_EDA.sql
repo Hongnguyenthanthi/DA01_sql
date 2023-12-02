@@ -1,7 +1,7 @@
 -- 1. Số lượng đơn hàng và số lượng khách hàng mỗi tháng
-SELECT  format_date('%Y-%m',delivered_at) as year_month, count(order_id) as total_order, count(user_id) as total_user
+SELECT  format_date('%Y-%m',created_at) as year_month, count(order_id) as total_order, count(user_id) as total_user
 FROM bigquery-public-data.thelook_ecommerce.orders 
-where (format_date('%Y-%m',delivered_at) between '2019-01' and '2022-04') and status ='Complete'
+where (format_date('%Y-%m',created_at) between '2019-01' and '2022-04') and status ='Complete'
 group by 1
 order by 1
 -> nhận xét: số lượng đơn hàng và số lượng người dùng tăng theo thời gian từ t1/2019 đến t4/2022
