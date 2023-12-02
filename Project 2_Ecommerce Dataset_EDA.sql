@@ -7,7 +7,9 @@ order by 1
 -> nhận xét: số lượng đơn hàng và số lượng người dùng tăng theo thời gian từ t1/2019 đến t4/2022
   
 -- 2. Giá trị đơn hàng trung bình (AOV) và số lượng khách hàng mỗi tháng
-SELECT  format_date('%Y-%m',a.delivered_at) as year_month, round(sum(b.sale_price)/count(a.order_id),2) as average_order_value, count(distinct a.user_id) as distinct_users
+SELECT  format_date('%Y-%m',a.delivered_at) as year_month, 
+round(sum(b.sale_price)/count(a.order_id),2) as average_order_value, 
+count(distinct a.user_id) as distinct_users
 FROM bigquery-public-data.thelook_ecommerce.orders as a 
 join bigquery-public-data.thelook_ecommerce.order_items as b 
 on a.order_id=b.order_id
@@ -44,7 +46,9 @@ select * from customer_age
 -> nhận xét: trẻ nhất là 12 tuổi, số lượng là 1682 người, 831 nữ, 851 nam; lớn nhất là 70 tuổi, số lượng là 1717 người, 843 nữ, 874 nam. 
 
  -- 4. Top 5 sản phẩm mỗi tháng 
-with rank_per_month_table as (select format_date('%Y-%m',a.delivered_at) as year_month, b.id as product_id, b.name as product_name, (b.retail_price-b.cost) as profit, 
+with rank_per_month_table as 
+(select format_date('%Y-%m',a.delivered_at) as year_month, 
+b.id as product_id, b.name as product_name, (b.retail_price-b.cost) as profit, 
 dense_rank() over(partition by format_date('%Y-%m',a.delivered_at) order by (b.retail_price-b.cost)) as rank_per_month
 from bigquery-public-data.thelook_ecommerce.order_items as a
 join bigquery-public-data.thelook_ecommerce.products as b
@@ -55,7 +59,9 @@ where rank_per_month <=5
 order by year_month
 
 -- 5. Doanh thu tính đến thời điểm hiện tại trên mỗi danh mục
-with new_table as (select cast(format_date('%Y-%m-%d',a.delivered_at) as date) as year_month_day, b.category as product_category, round(sum(b.retail_price),2) as revenue
+with new_table as 
+(select cast(format_date('%Y-%m-%d',a.delivered_at) as date) as year_month_day, 
+b.category as product_category, round(sum(b.retail_price),2) as revenue
 from bigquery-public-data.thelook_ecommerce.order_items as a
 join bigquery-public-data.thelook_ecommerce.products as b
 on a.product_id=b.id
