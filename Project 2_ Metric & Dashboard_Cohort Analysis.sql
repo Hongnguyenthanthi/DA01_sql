@@ -1,4 +1,4 @@
-with new_table as (SELECT c.category as product_category, format_date('%Y-%m', a.created_at) as year_month, 
+with table_1 as (SELECT c.category as product_category, format_date('%Y-%m', a.created_at) as year_month, 
   extract(year from a.created_at) as year, 
   sum(b.sale_price) as TPV, 
   count(b.order_id) as TPO,
@@ -16,7 +16,7 @@ lag(TPV) over(partition by product_category order by year_month) as previous_TPV
 (TPV-lag(TPV) over(partition by product_category order by year_month))/lag(TPV) over(partition by product_category order by year_month) as revenue_growth,
 lag(TPO) over(partition by product_category order by year_month) as previous_TPO,
 (TPO-lag(TPO) over(partition by product_category order by year_month))/lag(TPO) over(partition by product_category order by year_month) as order_growth
-from new_table
+from table_1
 
 
 
