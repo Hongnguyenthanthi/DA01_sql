@@ -31,5 +31,19 @@ where month_id=11) as a) as b
 where rank1=1 or rank2=1
 -> productline Classic Cars có số lượng 219 và doanh thu 825156.26 cao nhất ở tháng 11 
 
+4) Đâu là sản phẩm có doanh thu tốt nhất ở UK mỗi năm?  
+select * from  
+(select year_id, productline,
+sum(sales)  as revenue,
+ rank() over(partition by year_id order by sum(sales) desc)
+from
+public.sales_dataset_rfm_prj_clean
+where country='UK'
+group by year_id, productline) as a 
+where rank=1
+-> Năm 2003, Classic Cars có doanh thu 66705.63 tốt nhất ở UK 
+Năm 2004, Classic Cars có doanh thu 92672.07 tốt nhất ở UK
+Năm 2005, Motorcycles có doanh thu 40802.81 tốt nhất ở UK
+
 
 
