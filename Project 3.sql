@@ -6,21 +6,30 @@ from public.sales_dataset_rfm_prj_clean
 group by year_id, productline, dealsize
 order by productline,year_id,dealsize
 
-2) Đâu là tháng có bán tốt nhất mỗi năm?
--- cách 1: 
-  select *, sum(revenue) over(order by month_id)
-from (select
-month_id, ordernumber, 
-sum(sales) as revenue 
-from public.sales_dataset_rfm_prj_clean
-group by  ordernumber, month_id) as a
-order by sum(revenue) over(order by month_id) desc
+2) Đâu là tháng có bán tốt nhất mỗi năm? 
+select * from 
+(select *, rank() over(order by revenue desc) 
+from
+(select 
+month_id, ordernumber,
+sum(sales) over(partition by month_id) as revenue
+from public.sales_dataset_rfm_prj_clean) as a) as b 		   
+where rank=1
+ -> tháng 11 có doanh thu bán tốt nhất tổng 2118885.67
 
-  -- cách 2:   
-select 
-month_id, ordernumber, sales,
-sum(sales) over(order by month_id) as total_revenue_of_month 
+ 3) Product line nào được bán nhiều ở tháng 11?
+select * from 
+(select *, 
+rank() over(order by revenue desc) as rank1,
+rank() over(order by productline_count desc) as rank2
+from
+(select productline, month_id, ordernumber,
+sum(sales) over(partition by productline) as revenue,
+count(productline) over(partition by productline) as productline_count
 from public.sales_dataset_rfm_prj_clean
-order by sum(sales) over(order by month_id) desc, ordernumber
+where month_id=11) as a) as b
+where rank1=1 or rank2=1
+-> productline Classic Cars có số lượng 219 và doanh thu 825156.26 cao nhất ở tháng 11 
+
 
 
