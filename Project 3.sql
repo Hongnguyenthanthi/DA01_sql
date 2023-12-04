@@ -45,5 +45,44 @@ where rank=1
 Năm 2004, Classic Cars có doanh thu 92672.07 tốt nhất ở UK
 Năm 2005, Motorcycles có doanh thu 40802.81 tốt nhất ở UK
 
-
+5) Ai là khách hàng tốt nhất, phân tích dựa vào RFM 
+select * from public.sales_dataset_rfm_prj_clean;
+with customer_rfm as (
+	select customername,
+current_date-max(orderdate) as R,
+count( distinct ordernumber) as F,
+sum(sales) as M
+from public.sales_dataset_rfm_prj_clean
+group by customername),
+rfm_score as 
+(select customername,
+ntile(5) over(order by R desc) as R_score,
+ntile(5) over(order by F ) as F_score,
+ntile(5) over(order by M ) as M_score
+from customer_rfm),
+rfm_table as (
+select customername, 
+cast(R_score as varchar) || cast(F_score as varchar)|| cast(M_score as varchar) as rfm_score
+from rfm_score)
+select a.customername, b.segment
+from rfm_table as a 
+join segment_score as b
+on a.rfm_score = b.scores
+where b.segment='Champions'
+ -> 15 khách hàng tốt nhất: 
+ "Anna's Decorations, Ltd"
+"Reims Collectables"
+"Dragon Souveniers, Ltd."
+"Corporate Gift Ideas Co."
+"Gift Depot Inc."
+"La Rochelle Gifts"
+"Diecast Classics Inc."
+"Handji Gifts& Co"
+"Tokyo Collectables, Ltd"
+"Euro Shopping Channel"
+"Mini Gifts Distributors Ltd."
+"Souveniers And Things Co."
+"Salzburg Collectables"
+"The Sharp Gifts Warehouse"
+"Danish Wholesale Imports"
 
