@@ -7,6 +7,7 @@ group by year_id, productline, dealsize
 order by productline,year_id,dealsize
 
 2) Đâu là tháng có bán tốt nhất mỗi năm? 
+cách 1: 
 select * from 
 (select *, rank() over(order by revenue desc) 
 from
@@ -15,9 +16,18 @@ month_id, ordernumber,
 sum(sales) over(partition by month_id) as revenue
 from public.sales_dataset_rfm_prj_clean) as a) as b 		   
 where rank=1
+
+cách 2: 
+select 
+month_id, ordernumber,
+sum(sales) over(partition by month_id) as revenue
+from public.sales_dataset_rfm_prj_clean
+order by sum(sales) over(partition by month_id) desc 
+limit 1
  -> tháng 11 có doanh thu bán tốt nhất tổng 2118885.67
 
  3) Product line nào được bán nhiều ở tháng 11?
+cách 1: 
 select * from 
 (select *, 
 rank() over(order by revenue desc) as rank1,
@@ -29,6 +39,16 @@ count(productline) over(partition by productline) as productline_count
 from public.sales_dataset_rfm_prj_clean
 where month_id=11) as a) as b
 where rank1=1 or rank2=1
+
+cách 2:
+select productline, month_id, ordernumber,
+sum(sales) over(partition by productline) as revenue,
+count(productline) over(partition by productline) as productline_count
+from public.sales_dataset_rfm_prj_clean
+where month_id=11
+order by sum(sales) over(partition by productline) desc, 
+count(productline) over(partition by productline) desc 
+limit 1
 -> productline Classic Cars có số lượng 219 và doanh thu 825156.26 cao nhất ở tháng 11 
 
 4) Đâu là sản phẩm có doanh thu tốt nhất ở UK mỗi năm?  
@@ -69,7 +89,7 @@ from rfm_table as a
 join segment_score as b
 on a.rfm_score = b.scores
 where b.segment='Champions'
- -> 15 khách hàng tốt nhất: 
+ -> 15 khách hàng tốt nhất ở segment Champions
  "Anna's Decorations, Ltd"
 "Reims Collectables"
 "Dragon Souveniers, Ltd."
