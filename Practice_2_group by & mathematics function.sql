@@ -17,6 +17,7 @@ FROM candidates
 where skill in ('Python', 'Tableau', 'PostgreSQL')
 group by candidate_id
 having count(skill)=3
+order by candidate_id
 
 -- bai tap 6 
 SELECT user_id,
