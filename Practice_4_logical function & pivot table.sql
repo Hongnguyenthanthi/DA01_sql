@@ -10,7 +10,7 @@ select x,y,z,
 from Triangle
 
 -- bai tap 3
-SELECT round(cast(sum(case when call_category is null or cate_category ='n/a' then 1 else 0 end)/count(case_id)*100) as decimal,1)
+SELECT round(cast(sum(case when call_category is null or call_category ='n/a' then 1 else 0 end)/count(case_id)*100 as decimal),1)
 from callers
   
 -- bai tap 4
